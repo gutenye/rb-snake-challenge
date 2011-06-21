@@ -1,0 +1,28 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    activesupport (3.0.9)
+    diff-lcs (1.1.2)
+    o (1.0.0)
+    pd (1.0.2)
+    rspec (2.5.0)
+      rspec-core (~> 2.5.0)
+      rspec-expectations (~> 2.5.0)
+      rspec-mocks (~> 2.5.0)
+    rspec-core (2.5.1)
+    rspec-expectations (2.5.0)
+      diff-lcs (~> 1.1.2)
+    rspec-mocks (2.5.0)
+    tagen (1.0.2)
+      activesupport
+      pd
+    watchr (0.7)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  o (~> 1.0.0)
+  rspec
+  tagen (~> 1.0.0)
+  watchr
