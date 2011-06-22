@@ -10,17 +10,17 @@ class SnakeChallenge
 			body[0]
 		end
 
-		# turn right. use direction+1
+		# turn right.
 		def right 
-			turn direction+1
+			turn (direction+1)%4
 		end
 
-		# turn left. use direction-1
+		# turn left.
 		def left
-			turn direction-1
+			turn (4+direction-1)%4
 		end
 
-		# move forward. use direction
+		# move forward.
 		def forward
 			turn direction
 		end

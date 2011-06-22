@@ -1,14 +1,10 @@
 require 'tagen/core'
-require 'o'
-
 require "json"
 require "net/http"
 
 class SnakeChallenge
-	Error = Class.new
+	Error = Class.new Exception
 	NoPlaceForNewSnake = Class.new Error
-
-	Rc = O.relative_load('snake_challenge/rc')
 
 	# the room number
 	attr_reader :room
@@ -30,12 +26,15 @@ class SnakeChallenge
 	attr_reader :map
 
 	# my snake. 
-	# @param [Snake] mysnake
-	attr_reader :mysnake
+	# @param [Snake] snake
+	attr_reader :snake
 
 	# all snakes infomation. 
 	# @param [Array<SnakeInfo>] snakes
 	attr_reader :snakes
+
+	# the other snakes information.
+	attr_reader :other_snakes
 
 	# gems positions
 	# @param [Array] gems \[ [x,y] ]
@@ -59,27 +58,29 @@ class SnakeChallenge
 	# @param [String] name the name of the snake
 	# @param [Fixnum] room room number
 	# @param [Symbol] type :ruby :python
-	def initialize name, room, type=:ruby
+	def initialize name
 		@name = name
-		@room = room
-		@type = type
 	end
 
 
-	def connect
-		@http = Net::HTTP.new(*Rc.server)
+	def connect server, port
+		@http = Net::HTTP.new(server, port)
+	end
+
+	def join room, type=:ruby
+		@room = room
+		@type = type
 
 		request = Net::HTTP::Post.new("/room/#{@room}/add")
 		request.set_form_data(:name => @name, :type => @type)
 		response = @http.request(request)
-
 		me, info = JSON.parse(response.body)
 
 		if status=me["status"]
 			case status
 			when /snake type error/
 				raise Error, status
-			when /no place for new snake/
+			when /no place ... new snake/
 				raise NoPlaceForNewSnake
 			end
 		end
@@ -87,8 +88,10 @@ class SnakeChallenge
 		@id = me["id"]
 		@seq = me["seq"]
 		convert_info info
-		@mysnake = Snake.new(self)
+		@snake = Snake.new(self)
 		@map = get_map
+
+
 	end
 
 	private
@@ -101,8 +104,7 @@ class SnakeChallenge
 		response = @http.request(request)
 		result, info = JSON.parse(response.body)
 
-		raise Error, result["status"] unless result["status"] == "ok"
-
+		#raise Error, status unless status=="ok"
 		convert_info info
 	end
 
@@ -112,14 +114,15 @@ class SnakeChallenge
 		@eggs = info["eggs"]
 		@round = info["round"]
 		@snakes = info["snakes"].map{|v| SnakeInfo.new(v)}
+		@other_snakes = @snakes.clone.tap{|v|v.delete_at(seq)}
 	end
 	
 	def get_map
 		respond = @http.get("/room/#{@room}/map")
 		data = JSON.parse(respond.body)
-		Map.new(data["walls"], data["size"])
+		#Map.new(data["walls"], data["size"])
+		data
 	end
-
 end
 
 %w(

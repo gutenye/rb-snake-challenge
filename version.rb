@@ -1,4 +1,4 @@
-module SnakeChallenge
+class SnakeChallenge
 	module VERSION
 		MAJOR = 0
 		MINOR = 0
